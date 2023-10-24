@@ -1,0 +1,31 @@
+server:
+  port: 9000
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://k9d106.p.ssafy.io:8761/eureka
+
+spring:
+  application:
+    name: apigateway-service
+  cloud:
+    gateway:
+      routes: # 사용자 인증과정             - StripPrefix=1             - Method=POST
+#        - id: dotori-main-service
+#          uri: lb://dotori-main-service
+#          predicates:
+#            - Path=/api/v1/account/**, /api/v1/plan/**, /api/v1/purpose/**, /api/v1/bank/**, /api/v1/chatgpt/**
+#          filters:
+#            - StripPrefix=0
+    config:
+      name: painter
+      profile: gateway
+  config:
+    import: "optional:configserver:http://k9d106.p.ssafy.io:9900/"
+
+  main:
+    allow-bean-definition-overriding: true
+
+encrypt:
+  key: ${ENCRYPT_KEY}

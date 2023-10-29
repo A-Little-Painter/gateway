@@ -12,12 +12,24 @@ spring:
   cloud:
     gateway:
       routes: # 사용자 인증과정             - StripPrefix=1             - Method=POST
-#        - id: dotori-main-service
-#          uri: lb://dotori-main-service
-#          predicates:
-#            - Path=/api/v1/account/**, /api/v1/plan/**, /api/v1/purpose/**, /api/v1/bank/**, /api/v1/chatgpt/**
-#          filters:
-#            - StripPrefix=0
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/api/v1/user/**
+          filters:
+            - StripPrefix=0
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/v1/auth/**
+          filters:
+            - StripPrefix=0
+        - id: draw-service
+          uri: lb://draw-service
+          predicates:
+            - Path=/api/v1/draw/**
+          filters:
+            - StripPrefix=0
 
     config:
       name: painter

@@ -1,21 +1,34 @@
 package com.yehah.gateway.security.provider;
 
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
+import java.util.Collections;
 import java.util.Date;
 
 @Slf4j
 @Service
 public class JwtProvider {
     @Value("${jwt.secret.key}")
-    private String SECRET_KEY;
+    private String salt;
+
+    private Key SECRET_KEY;
+
+    @PostConstruct
+    protected void init(){
+        SECRET_KEY = Keys.hmacShaKeyFor(salt.getBytes(StandardCharsets.UTF_8));
+    }
 
     //JWT 토큰 유효성 검증 메서드
     public boolean validToken(String token){
@@ -23,8 +36,10 @@ public class JwtProvider {
             Claims claims = getClaims(token);
             //토큰 만료시간 확인
             Date expiration = claims.getExpiration();
+            log.info("expiration : " + expiration);
             return !expiration.before(new Date()); //만료시간이 지났으면(true) -> false 반환
         }catch (JwtException | IllegalArgumentException e){
+            log.info("validToken error : "+ e.getMessage());
             return false;
         }
     }
@@ -37,7 +52,12 @@ public class JwtProvider {
     //토큰 기반으로 인증 정보를 가져오는 메서드
     public Authentication getAuthentication(String token){
         Claims claims = getClaims(token);
-        return new UsernamePasswordAuthenticationToken(getUserEmailFromToken(token), null, null);
+        log.info("role : " + claims.get("role"));
+        if(claims.get("role") == null) {
+            return new UsernamePasswordAuthenticationToken(getUserEmailFromToken(token), null, null);
+        } else {
+            return new UsernamePasswordAuthenticationToken(getUserEmailFromToken(token), null, Collections.singleton(new SimpleGrantedAuthority(claims.get("role").toString())));
+        }
     }
 
     //토큰에서 claims 추출

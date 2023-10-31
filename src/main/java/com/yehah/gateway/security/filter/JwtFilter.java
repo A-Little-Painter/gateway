@@ -23,7 +23,9 @@ public class JwtFilter implements WebFilter {
     private String resolveToken(ServerHttpRequest request) {
         String authToken = request.getHeaders().getFirst(HEADER_KEY);
         if (StringUtils.hasText(authToken) && authToken.startsWith(PREFIX)) {
-            return authToken.substring(7);
+//            log.info("authToken : " + authToken.substring(PREFIX.length()));
+
+            return authToken.substring(PREFIX.length());
         }
         return null;
     }
@@ -32,20 +34,23 @@ public class JwtFilter implements WebFilter {
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain){
         ServerHttpRequest request = exchange.getRequest();
 
+        log.info(request.getPath() + " " + request.getMethod());
+
         String authToken = resolveToken(request); // 인증토큰
 
         Authentication authentication = null;
         ServerWebExchange serverWebExchange = null;
         if(StringUtils.hasText(authToken)){ // 토큰이 있는 경우
+            log.info("authToken : " + authToken);
             if(jwtProvider.validToken(authToken)){ // 토큰이 유효한 경우
                 authentication = jwtProvider.getAuthentication(authToken);
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
-                String id = authentication.getPrincipal().toString();
-                log.info(id);
+                String email = authentication.getPrincipal().toString();
+                log.info(email);
                 serverWebExchange = exchange.mutate()
-                        .request(builder -> builder.header("id", id))
+                        .request(builder -> builder.header("email", email))
                         .build();
             }
         }

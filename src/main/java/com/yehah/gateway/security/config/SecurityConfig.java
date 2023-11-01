@@ -43,6 +43,7 @@ public class SecurityConfig {
                 .authorizeExchange()
                 .pathMatchers("/api/v1/auth/**").permitAll()
                 .pathMatchers("/api/v1/user/**").hasAnyRole("USER", "ADMIN")
+                .pathMatchers("/api/v1/draw/**").hasAnyRole("USER", "ADMIN")
                 .anyExchange().permitAll()
                 .and()
                 .addFilterAt(new JwtFilter(jwtProvider), SecurityWebFiltersOrder.AUTHENTICATION)

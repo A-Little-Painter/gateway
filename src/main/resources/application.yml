@@ -27,7 +27,7 @@ spring:
         - id: draw-service
           uri: lb://draw-service
           predicates:
-            - Path=/api/v1/draw/**
+            - Path=/api/v1/draws/**
           filters:
             - StripPrefix=0
 

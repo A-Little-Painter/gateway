@@ -43,7 +43,7 @@ public class SecurityConfig {
                 .authorizeExchange()
                 .pathMatchers("/api/v1/auth/**").permitAll()
                 .pathMatchers("/api/v1/user/**").hasAnyRole("USER", "ADMIN")
-                .pathMatchers("/api/v1/draws/child_work/**").hasAnyRole("USER", "ADMIN")
+                .pathMatchers("/api/v1/draws/child_work/**").permitAll()
                 .pathMatchers("/api/v1/draws/**").permitAll()
                 .anyExchange().permitAll()
                 .and()
